@@ -146,7 +146,7 @@ static int tftp_send_error(int sock, enum tftp_error code, const char *msg)
 
 	*(uint16_t *)buf = htons(OP_ERROR);
 	*(uint16_t *)(buf + 2) = htons(code);
-	strcpy(buf + 4, msg);
+	memcpy(buf + 4, msg, len - 4);
 
 	rc = send(sock, buf, len, 0);
 	free(buf);
