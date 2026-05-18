@@ -23,6 +23,8 @@
 #define UPDATES_DIR	"updates/"
 #define READONLY_FW_BASE	"/readonly/firmware/"
 #define READONLY_MODEM_PATH	READONLY_FW_BASE "modem_pr"
+#define READONLY_VENDOR_PATH		"/readonly/vendor/firmware/"
+#define READONLY_VENDOR_MNT_PATH	"/readonly/vendor/firmware_mnt/image/"
 
 #ifndef ANDROID
 #define FIRMWARE_BASE	"/lib/firmware/"
@@ -203,6 +205,8 @@ static int translate_readwrite(const char *file, int flags)
  * Strips /readonly/firmware/image/ and searches among remoteproc firmware.
  * Strips /readonly/firmware/modem_pr and searches among remoteproc firmware
  * using the modem_pr relative path (e.g., maps to READONLY_FW_BASE/<fw_dir>/modem_pr/...).
+ * Strips /readonly/vendor/firmware/ and /readonly/vendor/firmware_mnt/image/
+ * and searches among remoteproc firmware.
  * Replaces /readwrite/ with a persistent directory.
  */
 int translate_open(const char *path, int flags)
@@ -213,6 +217,10 @@ int translate_open(const char *path, int flags)
 		return translate_readonly(path + strlen(READONLY_FW_BASE));
 	else if (!strncmp(path, READWRITE_PATH, strlen(READWRITE_PATH)))
 		return translate_readwrite(path + strlen(READWRITE_PATH), flags);
+	else if (!strncmp(path, READONLY_VENDOR_MNT_PATH, strlen(READONLY_VENDOR_MNT_PATH)))
+		return translate_readonly(path + strlen(READONLY_VENDOR_MNT_PATH));
+	else if (!strncmp(path, READONLY_VENDOR_PATH, strlen(READONLY_VENDOR_PATH)))
+		return translate_readonly(path + strlen(READONLY_VENDOR_PATH));
 
 	fprintf(stderr, "invalid path %s, rejecting\n", path);
 	errno = ENOENT;
